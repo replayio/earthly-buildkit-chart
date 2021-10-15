@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "earthly-buildkit-chart.fullname" . }}
+  labels:
+    {{- include "earthly-buildkit-chart.labels" . | nindent 4 }}
+spec:
+  type: {{ .Values.service.type }}
+  ports:
+    - port: {{ .Values.service.port }}
+      targetPort: http
+      protocol: TCP
+      name: http
+  selector:
+    {{- include "earthly-buildkit-chart.selectorLabels" . | nindent 4 }}
