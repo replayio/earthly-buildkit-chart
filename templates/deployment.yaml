@@ -11,6 +11,8 @@ spec:
   selector:
     matchLabels:
       {{- include "earthly-buildkit-chart.selectorLabels" . | nindent 6 }}
+  strategy:
+    type: Recreate
   template:
     metadata:
       {{- with .Values.podAnnotations }}
@@ -33,11 +35,19 @@ spec:
             {{- toYaml .Values.securityContext | nindent 12 }}
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
+          command: ["/usr/bin/entrypoint.sh", "buildkitd", "--config=/etc/buildkitd.toml", "--debugaddr=127.0.0.1:8054"]
           env:
             - name: BUILDKIT_TCP_TRANSPORT_ENABLED
               value: "true"
             - name: BUILDKIT_TLS_ENABLED
               value: "false"
+            - name: CACHE_SIZE_MB
+              value: "45000"
+            # - name: BUILDKIT_SCHEDULER_DEBUG
+            #   value: "1"
+            # - name: BUILDKIT_DEBUG
+            #   value: "true"
+            
           ports:
             - name: buildkit
               containerPort: 8372
